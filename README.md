@@ -1,3 +1,27 @@
+<div align="center">
+  <img src="public/banner.png" alt="ArcadeLearn Banner" width="100%">
+  
+  <h1>
+    <img src="public/logo-bgfree.png" alt="Logo" height="40" align="center"/>
+    ArcadeLearn
+  </h1>
+  
+  <p><strong>Transform Your Tech Career Through Gamified Learning</strong></p>
+  
+  [![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Visit_Now-brightgreen?style=for-the-badge)](https://arcade-learn-gqp0.onrender.com/)
+  [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+  [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+  [![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+  [![Render](https://img.shields.io/badge/Render-Deployed-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://render.com/)
+  
+  <p><em>Your personalized journey from beginner to industry-ready professional</em></p>
+  
+  [Features](#-core-features) • [How It Works](#-how-it-works) • [Tech Stack](#️-technology-stack) • [Getting Started](#-quick-start) • [Roadmap](#-roadmap)
+  
+</div>
+
+
 # ArcadeLearn Project Context for Gemini CLI
 
 This document provides a comprehensive overview of the ArcadeLearn project, intended to serve as instructional context for interactions with the Gemini CLI agent.
