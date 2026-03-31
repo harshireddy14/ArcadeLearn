@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcade-learn.local/contracts/score-v2.schema.json",
+  "title": "Arcade Learn Score V2 Contract",
+  "type": "object",
+  "definitions": {
+    "uuid": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "isoDatetime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "scoreAttemptWriteRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "attemptId",
+        "userId",
+        "roadmapId",
+        "moduleId",
+        "nodeId",
+        "nodeDepth",
+        "quizScore",
+        "submittedAt"
+      ],
+      "properties": {
+        "attemptId": { "$ref": "#/definitions/uuid" },
+        "userId": { "$ref": "#/definitions/uuid" },
+        "roadmapId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "moduleId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "nodeId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "nodeDepth": { "type": "string", "enum": ["submodule", "module"] },
+        "quizScore": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "submittedAt": { "$ref": "#/definitions/isoDatetime" },
+        "scoringVersion": { "type": "string", "default": "v1" },
+        "metadata": { "type": "object" }
+      }
+    },
+    "moduleCompletionBonusRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["userId", "roadmapId", "moduleId", "completedAt"],
+      "properties": {
+        "userId": { "$ref": "#/definitions/uuid" },
+        "roadmapId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "moduleId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "completedAt": { "$ref": "#/definitions/isoDatetime" },
+        "scoringVersion": { "type": "string", "default": "v1" }
+      }
+    },
+    "roadmapSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["roadmapId", "totalScore", "totalStars", "updatedAt"],
+      "properties": {
+        "roadmapId": { "type": "string" },
+        "totalScore": { "type": "number", "minimum": 0 },
+        "totalStars": { "type": "integer", "minimum": 0 },
+        "rank": { "type": ["integer", "null"], "minimum": 1 },
+        "updatedAt": { "$ref": "#/definitions/isoDatetime" }
+      }
+    },
+    "userScoreSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "userId",
+        "totalScore",
+        "totalStars",
+        "totalSubmodulePoints",
+        "totalModuleBonusPoints",
+        "updatedAt",
+        "scoringVersion",
+        "roadmapSummaries"
+      ],
+      "properties": {
+        "userId": { "$ref": "#/definitions/uuid" },
+        "totalScore": { "type": "number", "minimum": 0 },
+        "totalStars": { "type": "integer", "minimum": 0 },
+        "totalSubmodulePoints": { "type": "number", "minimum": 0 },
+        "totalModuleBonusPoints": { "type": "number", "minimum": 0 },
+        "updatedAt": { "$ref": "#/definitions/isoDatetime" },
+        "scoringVersion": { "type": "string" },
+        "globalRank": { "type": ["integer", "null"], "minimum": 1 },
+        "roadmapSummaries": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/roadmapSummary" }
+        }
+      }
+    }
+  }
+}
