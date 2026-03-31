@@ -11,8 +11,14 @@ import { surveyService } from './services/surveyService.js';
 import { emailService } from './services/emailService.js';
 import { resumeService } from './services/resumeService.js';
 import { jobRecommendationService } from './services/jobRecommendationService.js';
+import { roadmapJobMatchService } from './services/roadmapJobMatchService.js';
 import { userActivityService } from './services/userActivityService.js';
+import { scoreV2Service } from './services/scoreV2Service.js';
+import { getScoreFeatureFlags } from './config/featureFlags.js';
 import pdfService from './services/pdfService.js';
+import { invokeMcpTool } from './mcpServer.js';
+import { getRegisteredMcpTools } from './mcpServer.js';
+import { aiOrchestratorService } from './services/aiOrchestratorService.fallback.js';
 
 // Get __dirname equivalent in ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -40,9 +46,144 @@ app.use(cors({
 
 app.use(express.json());
 
+function buildScoreV2FlagsPayload() {
+  return getScoreFeatureFlags();
+}
+
+function requireScoreFlag(flagName) {
+  const flags = getScoreFeatureFlags();
+  if (!flags[flagName]) {
+    return {
+      allowed: false,
+      response: {
+        error: `Score V2 ${flagName} is disabled`,
+        flags,
+      },
+    };
+  }
+
+  return {
+    allowed: true,
+    response: null,
+  };
+}
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+// MCP discovery endpoint for developer tooling and integration checks.
+app.get('/mcp', (req, res) => {
+  res.json({
+    name: 'arcadelearn-mcp',
+    version: '0.2.0-stop-f',
+    tools: getRegisteredMcpTools(),
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Stop B: secure server-side quiz generation route (frontend cutover comes in next stop)
+const quizRateLimitStore = new Map();
+const QUIZ_MAX_PER_HOUR = 10;
+const QUIZ_WINDOW_MS = 60 * 60 * 1000;
+
+app.post('/api/quiz/generate', async (req, res) => {
+  try {
+    const { topic, context = [], count = 4, userId } = req.body ?? {};
+
+    if (typeof topic !== 'string' || topic.trim().length < 2) {
+      return res.status(400).json({
+        success: false,
+        error: 'A valid topic is required.'
+      });
+    }
+
+    if (!Array.isArray(context) || context.some((item) => typeof item !== 'string')) {
+      return res.status(400).json({
+        success: false,
+        error: 'Context must be an array of strings.'
+      });
+    }
+
+    const safeCount = Number.isInteger(count) ? Math.max(2, Math.min(10, count)) : 4;
+    const rateLimitKey = userId || req.ip || 'anonymous';
+    const now = Date.now();
+    const rateState = quizRateLimitStore.get(rateLimitKey) || { count: 0, resetAt: now + QUIZ_WINDOW_MS };
+
+    if (now > rateState.resetAt) {
+      rateState.count = 0;
+      rateState.resetAt = now + QUIZ_WINDOW_MS;
+    }
+
+    rateState.count += 1;
+    quizRateLimitStore.set(rateLimitKey, rateState);
+
+    if (rateState.count > QUIZ_MAX_PER_HOUR) {
+      return res.status(429).json({
+        success: false,
+        error: 'Rate limit exceeded. Try again later.'
+      });
+    }
+
+    const result = await invokeMcpTool('generate_quiz', {
+      topic: topic.trim(),
+      context,
+      count: safeCount
+    });
+
+    return res.json(result);
+  } catch (error) {
+    console.error('Quiz generation error:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to generate quiz.'
+    });
+  }
+});
+
+// Stop D: backend AI chat endpoint (frontend cutover comes later)
+app.post('/api/ai/chat', async (req, res) => {
+  try {
+    const { messages } = req.body ?? {};
+
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Messages array is required.',
+      });
+    }
+
+    const hasInvalidMessage = messages.some(
+      (message) =>
+        !message ||
+        (message.role !== 'user' && message.role !== 'assistant' && message.role !== 'system') ||
+        typeof message.content !== 'string' ||
+        message.content.trim().length === 0 ||
+        message.content.length > 6000
+    );
+
+    if (hasInvalidMessage) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid message payload.',
+      });
+    }
+
+    const result = await aiOrchestratorService.getChatCompletion({ messages });
+    if (!result.success) {
+      const status = Number.isInteger(result.statusCode) ? result.statusCode : 500;
+      return res.status(status).json(result);
+    }
+
+    return res.json(result);
+  } catch (error) {
+    console.error('AI chat error:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to process AI chat request.',
+    });
+  }
 });
 
 // User Progress Routes
@@ -106,6 +247,128 @@ app.get('/api/leaderboard', async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// Score V2 Routes (feature-flagged)
+app.post('/api/v2/user/:userId/score/attempt', async (req, res) => {
+  const gate = requireScoreFlag('scoreV2WriteEnabled');
+  if (!gate.allowed) {
+    return res.status(503).json(gate.response);
+  }
+
+  try {
+    const { userId } = req.params;
+    const {
+      attemptId,
+      roadmapId,
+      moduleId,
+      nodeId,
+      nodeDepth,
+      quizScore,
+      metadata,
+      submittedAt,
+      scoringVersion,
+    } = req.body ?? {};
+
+    if (!attemptId || !roadmapId || !moduleId || !nodeId || !nodeDepth || typeof quizScore !== 'number') {
+      return res.status(400).json({
+        error: 'Missing required fields: attemptId, roadmapId, moduleId, nodeId, nodeDepth, quizScore',
+      });
+    }
+
+    const result = await scoreV2Service.submitAttempt(userId, {
+      attemptId,
+      roadmapId,
+      moduleId,
+      nodeId,
+      nodeDepth,
+      quizScore,
+      metadata,
+      submittedAt: submittedAt || new Date().toISOString(),
+      scoringVersion,
+    });
+
+    return res.json({
+      success: true,
+      data: result,
+      flags: buildScoreV2FlagsPayload(),
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/v2/user/:userId/score/module-bonus', async (req, res) => {
+  const gate = requireScoreFlag('scoreV2WriteEnabled');
+  if (!gate.allowed) {
+    return res.status(503).json(gate.response);
+  }
+
+  try {
+    const { userId } = req.params;
+    const { roadmapId, moduleId, completedAt, scoringVersion } = req.body ?? {};
+
+    if (!roadmapId || !moduleId) {
+      return res.status(400).json({
+        error: 'Missing required fields: roadmapId, moduleId',
+      });
+    }
+
+    const result = await scoreV2Service.awardModuleBonus(userId, {
+      roadmapId,
+      moduleId,
+      completedAt: completedAt || new Date().toISOString(),
+      scoringVersion,
+    });
+
+    return res.json({
+      success: true,
+      data: result,
+      flags: buildScoreV2FlagsPayload(),
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/v2/user/:userId/score-summary', async (req, res) => {
+  const gate = requireScoreFlag('scoreV2ReadEnabled');
+  if (!gate.allowed) {
+    return res.status(503).json(gate.response);
+  }
+
+  try {
+    const { userId } = req.params;
+    const summary = await scoreV2Service.getUserSummary(userId);
+
+    return res.json({
+      success: true,
+      data: summary,
+      flags: buildScoreV2FlagsPayload(),
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/v2/leaderboard', async (req, res) => {
+  const gate = requireScoreFlag('scoreV2LeaderboardEnabled');
+  if (!gate.allowed) {
+    return res.status(503).json(gate.response);
+  }
+
+  try {
+    const limit = parseInt(req.query.limit) || 100;
+    const leaderboard = await scoreV2Service.getGlobalLeaderboard(limit);
+
+    return res.json({
+      success: true,
+      data: leaderboard,
+      flags: buildScoreV2FlagsPayload(),
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
 });
 
@@ -581,6 +844,24 @@ app.get('/api/user/:userId/jobs/recommendations', async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     
     const result = await jobRecommendationService.getRecommendations(userId, limit);
+
+    if (result.success) {
+      res.json(result.data);
+    } else {
+      res.status(400).json({ error: result.error });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get roadmap keyword based job matches (no resume required)
+app.get('/api/jobs/roadmap-matches', async (req, res) => {
+  try {
+    const roadmap = typeof req.query.roadmap === 'string' ? req.query.roadmap : 'frontend';
+    const limit = parseInt(req.query.limit, 10) || 20;
+
+    const result = await roadmapJobMatchService.getRoadmapMatches(roadmap, limit);
 
     if (result.success) {
       res.json(result.data);
