@@ -1,0 +1,394 @@
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  BookOpen,
+  PlayCircle,
+  CheckCircle2,
+  Users,
+  Bot,
+  Award,
+  Briefcase,
+  TrendingUp,
+  ArrowRight,
+  Star,
+  Clock,
+  Target
+} from "lucide-react";
+
+const HowItWorksSection = () => {
+  const navigate = useNavigate();
+  const [activeStep, setActiveStep] = useState(0);
+
+  const steps = [
+    {
+      id: 1,
+      title: "Choose Your Roadmap",
+      description: "Start your journey by selecting a curated learning path designed by industry experts.",
+      icon: BookOpen,
+      color: "from-blue-500 to-cyan-500",
+      details: [
+        "Browse expert-curated roadmaps",
+        "Select based on your career goals",
+        "View estimated duration and difficulty"
+      ]
+    },
+    {
+      id: 2,
+      title: "Learn & Complete Modules",
+      description: "Progress through structured modules with hands-on projects and real-world resources.",
+      icon: PlayCircle,
+      color: "from-green-500 to-emerald-500",
+      details: [
+        "Interactive learning modules",
+        "Hands-on projects and exercises",
+        "Real-world industry resources"
+      ]
+    },
+    {
+      id: 3,
+      title: "Take Assessments",
+      description: "Test your knowledge with mini-assessments at the end of each sub-topic.",
+      icon: CheckCircle2,
+      color: "from-orange-500 to-yellow-500",
+      details: [
+        "Mini-assessments per sub-topic",
+        "Immediate feedback on progress",
+        "Knowledge validation checkpoints"
+      ]
+    },
+    {
+      id: 4,
+      title: "Get Expert Help",
+      description: "Clarify doubts through live sessions with experts or instant AI assistance.",
+      icon: Users,
+      color: "from-purple-500 to-pink-500",
+      details: [
+        "Live doubt-solving sessions",
+        "Expert mentorship",
+        "24/7 AI chatbot support"
+      ]
+    },
+    {
+      id: 5,
+      title: "Final Evaluation",
+      description: "Complete comprehensive tests or projects evaluated by industry experts or AI.",
+      icon: Target,
+      color: "from-red-500 to-rose-500",
+      details: [
+        "Comprehensive final tests",
+        "Real-world project building",
+        "Expert & AI evaluation"
+      ]
+    },
+    {
+      id: 6,
+      title: "Earn Certification",
+      description: "Achieve minimum threshold scores to receive industry-recognized certificates.",
+      icon: Award,
+      color: "from-indigo-500 to-purple-500",
+      details: [
+        "Industry-recognized certificates",
+        "Minimum threshold scoring",
+        "Skill validation credentials"
+      ]
+    },
+    {
+      id: 7,
+      title: "Career Opportunities",
+      description: "Explore job opportunities and get career guidance based on your newly acquired skills.",
+      icon: Briefcase,
+      color: "from-teal-500 to-blue-500",
+      details: [
+        "Skill-matched job recommendations",
+        "Expert career guidance",
+        "Interview preparation training"
+      ]
+    }
+  ];
+
+  const features = [
+    {
+      icon: Clock,
+      title: "Self-Paced Learning",
+      description: "Learn at your own speed with flexible scheduling"
+    },
+    {
+      icon: Star,
+      title: "Expert-Curated",
+      description: "Content designed by industry professionals"
+    },
+    {
+      icon: TrendingUp,
+      title: "Career Growth",
+      description: "Direct path to career advancement opportunities"
+    }
+  ];
+
+  return (
+    <section className="py-16 sm:py-20 bg-background overflow-x-hidden">
+      <div className="container mx-auto px-4 max-w-7xl">
+        {/* Section Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-12 sm:mb-16"
+        >
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6 leading-normal px-2">
+            How It
+            <span className="text-primary"> Works</span>
+          </h2>
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-2">
+            Your complete learning journey from beginner to industry-ready professional.
+            Follow our proven 7-step process to master new skills and advance your career.
+          </p>
+        </motion.div>
+
+        {/* Interactive Journey Map */}
+        {/* <div className="mb-12 sm:mb-16">
+          <div className="relative w-full overflow-hidden"> */}
+            {/* Steps */}
+            {/* <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={{
+                hidden: { opacity: 0 },
+                visible: {
+                  opacity: 1,
+                  transition: {
+                    staggerChildren: 0.1
+                  }
+                }
+              }}
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-6 sm:gap-8 lg:gap-6 xl:gap-8 relative z-20 px-2 sm:px-4 mb-8"
+            > */}
+              {/* {steps.map((step, index) => {
+                const Icon = step.icon;
+                const isActive = index === activeStep;
+                const isCompleted = index < activeStep;
+
+                return (
+                  <motion.div
+                    key={step.id}
+                    variants={{
+                      hidden: { opacity: 0, y: 20 },
+                      visible: { opacity: 1, y: 0 }
+                    }}
+                    className="flex flex-col items-center cursor-pointer transition-all duration-300 px-1 sm:px-2 py-2 sm:py-4"
+                    onClick={() => setActiveStep(index)}
+                  > */}
+                    {/* Step Icon */}
+                    {/* <motion.div
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      className={`
+                      relative w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-full flex items-center justify-center mb-4 sm:mb-6 transition-all duration-300 transform hover:scale-110
+                      ${isActive
+                          ? `bg-primary shadow-lg scale-110`
+                          : isCompleted
+                            ? 'bg-primary/80 shadow-md'
+                            : 'bg-card border-2 border-border'
+                        }
+                    `}>
+                      <Icon className={`w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 ${isActive || isCompleted
+                        ? 'text-primary-foreground'
+                        : 'text-muted-foreground'
+                        }`} />
+                      {isCompleted && !isActive && (
+                        <div className="absolute -top-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 bg-primary rounded-full flex items-center justify-center">
+                          <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-primary-foreground" />
+                        </div>
+                      )}
+                      <div className="absolute -bottom-2 sm:-bottom-3 left-1/2 transform -translate-x-1/2 w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 bg-background rounded-full flex items-center justify-center border-2 border-border">
+                        <span className="text-xs sm:text-sm lg:text-base font-bold text-foreground">{step.id}</span>
+                      </div>
+                    </motion.div> */}
+
+                    {/* Step Title */}
+                    {/* <h3 className={`text-sm sm:text-base lg:text-lg font-semibold text-center transition-colors px-1 ${isActive
+                      ? 'text-primary'
+                      : 'text-foreground'
+                      }`}>
+                      {step.title}
+                    </h3>
+                  </motion.div>
+                );
+              })}
+            </motion.div> */}
+
+            {/* Progress Line */}
+            {/* <div className="relative px-4 sm:px-8 mt-6 sm:mt-8 mb-4 sm:mb-6">
+              <div className="hidden md:block h-2 bg-muted rounded-full"></div>
+              <motion.div
+                className="hidden md:block absolute top-0 left-4 sm:left-0 h-2 bg-primary rounded-full"
+                animate={{ width: `calc(${((activeStep + 1) / steps.length) * 100}% - 32px)` }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+              ></motion.div> */}
+
+              {/* Progress indicators */}
+              {/* <div className="hidden md:flex justify-between items-center absolute top-1/2 left-4 right-4 sm:left-8 sm:right-8 transform -translate-y-1/2">
+                {steps.map((_, index) => (
+                  <motion.div
+                    key={index}
+                    animate={{
+                      scale: index <= activeStep ? [1, 1.2, 1] : 1,
+                      backgroundColor: index <= activeStep ? "var(--primary)" : "var(--card)",
+                      borderColor: index <= activeStep ? "var(--primary)" : "var(--border)"
+                    }}
+                    className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 transition-all duration-300 ${index <= activeStep
+                      ? 'bg-primary border-primary'
+                      : 'bg-card border-border'
+                      }`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div> */}
+
+        {/* Active Step Details */}
+        <div className="mb-12 sm:mb-16">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeStep}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Card className="bg-card/80 backdrop-blur-sm border border-border shadow-xl mx-2 sm:mx-0">
+                <CardContent className="p-4 sm:p-6 lg:p-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
+                    <div>
+                      <div className="flex items-center mb-4 sm:mb-6">
+                        <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary flex items-center justify-center mr-3 sm:mr-4`}>
+                          {React.createElement(steps[activeStep].icon, { className: "w-6 h-6 sm:w-8 sm:h-8 text-primary-foreground" })}
+                        </div>
+                        <div>
+                          <Badge className="mb-2 text-xs sm:text-sm">Step {steps[activeStep].id}</Badge>
+                          <h3 className="text-xl sm:text-2xl font-bold text-foreground">
+                            {steps[activeStep].title}
+                          </h3>
+                        </div>
+                      </div>
+                      <p className="text-base sm:text-lg text-muted-foreground mb-4 sm:mb-6 leading-relaxed">
+                        {steps[activeStep].description}
+                      </p>
+                      <ul className="space-y-2 sm:space-y-3">
+                        {steps[activeStep].details.map((detail, index) => (
+                          <motion.li
+                            key={index}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            className="flex items-start sm:items-center"
+                          >
+                            <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-primary mr-2 sm:mr-3 flex-shrink-0 mt-0.5 sm:mt-0" />
+                            <span className="text-sm sm:text-base text-foreground">{detail}</span>
+                          </motion.li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="flex justify-center mt-6 lg:mt-0">
+                      <motion.div
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: 0.2, type: "spring" }}
+                        className={`w-40 h-40 sm:w-48 sm:h-48 lg:w-56 lg:h-56 xl:w-64 xl:h-64 rounded-2xl bg-primary flex items-center justify-center shadow-2xl`}
+                      >
+                        {React.createElement(steps[activeStep].icon, { className: "w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 xl:w-32 xl:h-32 text-primary-foreground opacity-80" })}
+                      </motion.div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Navigation */}
+        <div className="flex justify-center mb-12 sm:mb-16">
+          <div className="flex items-center space-x-2 sm:space-x-4 px-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setActiveStep(Math.max(0, activeStep - 1))}
+              disabled={activeStep === 0}
+              className="flex items-center text-xs sm:text-sm px-2 sm:px-4"
+            >
+              Previous
+            </Button>
+            <div className="flex space-x-1 sm:space-x-2">
+              {steps.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setActiveStep(index)}
+                  className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all ${index === activeStep
+                    ? 'bg-primary scale-125'
+                    : 'bg-muted hover:bg-border'
+                    }`}
+                />
+              ))}
+            </div>
+            <Button
+              size="sm"
+              onClick={() => setActiveStep(Math.min(steps.length - 1, activeStep + 1))}
+              disabled={activeStep === steps.length - 1}
+              className="flex items-center bg-primary hover:bg-primary/90 text-xs sm:text-sm px-2 sm:px-4"
+            >
+              Next
+              <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1 sm:ml-2" />
+            </Button>
+          </div>
+        </div>
+        {/* Key Features */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 px-2 sm:px-0">
+          {features.map((feature, index) => {
+            const Icon = feature.icon;
+            return (
+              <Card key={index} className="bg-card/60 backdrop-blur-sm border border-border shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <CardContent className="p-4 sm:p-6 text-center">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                    <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-primary-foreground" />
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2 sm:mb-3">
+                    {feature.title}
+                  </h3>
+                  <p className="text-sm sm:text-base text-muted-foreground">
+                    {feature.description}
+                  </p>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+
+        {/* Call to Action */}
+        <div className="text-center mt-12 sm:mt-16 px-2 sm:px-0">
+          <div className="bg-primary rounded-xl sm:rounded-2xl p-6 sm:p-8 text-primary-foreground">
+            <h3 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">Ready to Start Your Journey?</h3>
+            <p className="text-lg sm:text-xl mb-4 sm:mb-6 opacity-90">
+              Join thousands of learners who have successfully transformed their careers with our roadmaps.
+            </p>
+            <Button
+              size="lg"
+              className="bg-background text-foreground hover:bg-muted font-semibold px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-base"
+              onClick={() => navigate("/roadmaps")}
+            >
+              Explore Roadmaps
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default HowItWorksSection;
